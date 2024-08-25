@@ -16,11 +16,11 @@ const getHighestLowercaseAlphabet = (data) => {
 
 // POST endpoint
 app.post('/bfhl', (req, res) => {
-    console.log('Received data:', req.body); // Log the received data
+    console.log('Received data:', req.body); 
     const { data } = req.body;
-    const userId = "john_doe_17091999";  // Replace with dynamic user data
-    const email = "john@xyz.com";
-    const rollNumber = "ABCD123";
+    const userId = "RamSaiHariBabu_17092004";
+    const email = "ramsai.haribabuhundigam2021@vitstudent.ac.in";
+    const rollNumber = "21BRS1441";
 
     const numbers = data.filter(item => !isNaN(item));
     const alphabets = data.filter(item => isNaN(item));
