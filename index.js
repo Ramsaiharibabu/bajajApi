@@ -16,6 +16,7 @@ const getHighestLowercaseAlphabet = (data) => {
 
 // POST endpoint
 app.post('/bfhl', (req, res) => {
+    console.log('Received data:', req.body); // Log the received data
     const { data } = req.body;
     const userId = "john_doe_17091999";  // Replace with dynamic user data
     const email = "john@xyz.com";
@@ -42,4 +43,4 @@ app.get('/bfhl', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(Server running on port ${PORT}));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); // Corrected template literal
