@@ -1,46 +1,60 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const multer = require("multer");
+const cors = require("cors");
 
 const app = express();
-app.use(bodyParser.json());
 app.use(cors());
+app.use(express.json());
 
-// Helper function to get the highest lowercase alphabet
-const getHighestLowercaseAlphabet = (data) => {
-    const lowercaseAlphabets = data.filter(char => /[a-z]/.test(char));
-    return lowercaseAlphabets.length > 0 
-        ? [lowercaseAlphabets.sort()[lowercaseAlphabets.length - 1]] 
-        : [];
-};
+// MongoDB Connection URI and Port configuration
+const MONGO_URI =
+  "mongodb+srv://haribabu91000:RRIwMiq1Owl84gYZ@project1capstone.zmzit.mongodb.net/?retryWrites=true&w=majority&appName=project1Capstone";
+const PORT = 5000;
 
-// POST endpoint
-app.post('/bfhl', (req, res) => {
-    console.log('Received data:', req.body); 
-    const { data } = req.body;
-    const userId = "RamSaiHariBabu_17092004";
-    const email = "ramsai.haribabuhundigam2021@vitstudent.ac.in";
-    const rollNumber = "21BRS1441";
+// MongoDB Connection
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log(err));
 
-    const numbers = data.filter(item => !isNaN(item));
-    const alphabets = data.filter(item => isNaN(item));
-    const highestLowercaseAlphabet = getHighestLowercaseAlphabet(alphabets);
+// Multer setup for image upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
 
-    res.json({
-        is_success: true,
-        user_id: userId,
-        email: email,
-        roll_number: rollNumber,
-        numbers: numbers,
-        alphabets: alphabets,
-        highest_lowercase_alphabet: highestLowercaseAlphabet
-    });
+// Define a schema
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  age: Number,
+  gender: String,
+  image: String,
 });
 
-// GET endpoint
-app.get('/bfhl', (req, res) => {
-    res.status(200).json({ operation_code: 1 });
+const User = mongoose.model("User", userSchema);
+
+// Route to handle form submission
+app.post("/api/users", upload.single("image"), async (req, res) => {
+  try {
+    const { name, email, age, gender } = req.body;
+    const image = req.file ? req.file.filename : null;
+
+    const user = new User({ name, email, age, gender, image });
+    await user.save();
+
+    res.status(201).json({ message: "User created successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating user", error });
+  }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); // Corrected template literal
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
